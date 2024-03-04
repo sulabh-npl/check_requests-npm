@@ -383,36 +383,6 @@ function between_date(data, rule_values=[]) {
     }
 }
 
-function between_exclusive(data, rule_values=[]) {
-    // Purpose: This function checks if the input is between the expected range (exclusive)
-
-    // Arguments:
-    // - data: The input data
-    // - rule_values: The minimum and maximum value
-
-    // Returns:
-    // - boolean: True if the input is between the expected range (exclusive), False otherwise
-    // - string: The error message if the input is not between the expected range (exclusive), an empty string otherwise
-
-    try{
-        if(rule_values.length !== 2) {
-            return [false, 'The minimum and maximum value are not provided'];
-        }
-        let min_value = rule_values[0];
-        let max_value = rule_values[1];
-
-        if (data > min_value && data < max_value) {
-            return [true, ''];
-        }
-
-        return [false, 'The :attribute must be between '+min_value+' and '+max_value+' (exclusive)'];
-    }catch(e){
-        console.log(e);
-
-        return [false, 'Unexpected error occurred.'];
-    }
-}
-
 function between_date_exclusive(data, rule_values=[]) {
     // Purpose: This function checks if the input is between the expected date range (exclusive)
 
@@ -436,6 +406,36 @@ function between_date_exclusive(data, rule_values=[]) {
         }
 
         return [false, 'The :attribute must be between '+min_date+' and '+max_date+' (exclusive)'];
+    }catch(e){
+        console.log(e);
+
+        return [false, 'Unexpected error occurred.'];
+    }
+}
+
+function between_exclusive(data, rule_values=[]) {
+    // Purpose: This function checks if the input is between the expected range (exclusive)
+
+    // Arguments:
+    // - data: The input data
+    // - rule_values: The minimum and maximum value
+
+    // Returns:
+    // - boolean: True if the input is between the expected range (exclusive), False otherwise
+    // - string: The error message if the input is not between the expected range (exclusive), an empty string otherwise
+
+    try{
+        if(rule_values.length !== 2) {
+            return [false, 'The minimum and maximum value are not provided'];
+        }
+        let min_value = rule_values[0];
+        let max_value = rule_values[1];
+
+        if (data > min_value && data < max_value) {
+            return [true, ''];
+        }
+
+        return [false, 'The :attribute must be between '+min_value+' and '+max_value+' (exclusive)'];
     }catch(e){
         console.log(e);
 
@@ -673,6 +673,9 @@ function different(data, rule_values=[], request_body={}) {
     // - string: The error message if the input is not different from the other field, an empty string otherwise
 
     try{
+        if(rule_values.length === 0) {
+            return [false, 'The other field is not provided'];
+        }
         for (let other_field of rule_values) {
             if(!request_body[other_field]) {
                 return [false, 'The other field ('+other_field+') is not present in the request'];
@@ -735,6 +738,103 @@ function email(data) {
 
         return [false, 'The :attribute must be an email'];
     }catch(e){
+        console.log(e);
+
+        return [false, 'Unexpected error occurred.'];
+    }
+}
+
+function equal(data, rule_values=[]) {
+    // Purpose: This function checks if the input is equal to the expected value
+
+    // Arguments:
+    // - data: The input data
+    // - rule_values: The expected value
+
+    // Returns:
+    // - boolean: True if the input is equal to the expected value, False otherwise
+    // - string: The error message if the input is not equal to the expected value, an empty string otherwise
+
+    try{
+        if(rule_values.length === 0) {
+            return [false, 'The expected value is not provided'];
+        }
+        let expected_value = rule_values[0];
+
+        if (data == expected_value) {
+            return [true, ''];
+        }
+
+        return [false, 'The :attribute must be equal to '+expected_value];
+    }catch(e){
+        console.log(e);
+
+        return [false, 'Unexpected error occurred.'];
+    }
+}
+
+
+function greater_than(data, rule_values=[], request_body={}) {
+    // Purpose: This function checks if the input is greater than the other field's value
+
+    // Arguments:
+    // - data: The input data
+    // - rule_values: The other field name
+
+    // Returns:
+    // - boolean: True if the input is greater than the other field's value, False otherwise
+    // - string: The error message if the input is not greater than the other field's value, an empty string otherwise
+
+    try{
+        if(rule_values.length === 0) {
+            return [false, 'The other field is not provided'];
+        }
+        let other_field = rule_values[0];
+
+        if(!request_body[other_field]){
+            return [false, other_field+' is not present in the request'];
+        }
+
+        if(data > request_body[other_field]){
+            return [true, ''];
+        }
+        
+        return [false, 'The :attribute must be greater than '+other_field];
+    }catch(e){
+        console.log(e);
+
+        return [false, 'Unexpected error occurred.'];
+    }
+}
+
+function greater_than_or_equal(data, rule_values=[], request_body={}) {
+    // Purpose: This function checks if the input is greater than or equal to the other field's value
+
+    // Arguments:
+    // - data: The input data
+    // - rule_values: The other field name
+
+    // Returns:
+    // - boolean: True if the input is greater than or equal to the other field's value, False otherwise
+    // - string: The error message if the input is not greater than or equal to the other field's value, an empty string otherwise
+
+    try{
+        if(rule_values.length === 0) {
+            return [false, 'The other field is not provided'];
+        }
+        let other_field = rule_values[0];
+
+        if(!request_body[other_field]){
+            return [false, other_field+' is not present in the request'];
+        }
+
+        if(data >= request_body[other_field]){
+            return [true, ''];
+        }
+
+        return [false, 'The :attribute must be greater than or equal to '+other_field];
+    }catch(e){
+ 
         console.log(e);
 
         return [false, 'Unexpected error occurred.'];
@@ -998,6 +1098,35 @@ function min(data, rule_values=[]){
     }
 }
 
+function not_equal(data, rule_values=[]){
+    // Purpose: This function checks if the input is not equal to the expected value
+
+    // Arguments:
+    // - data: The input data
+    // - rule_values: The expected value
+
+    // Returns:
+    // - boolean: True if the input is not equal to the expected value, False otherwise
+    // - string: The error message if the input is equal to the expected value, an empty string otherwise
+
+    try{
+        if(rule_values.length === 0) {
+            return [false, 'The expected value is not provided'];
+        }
+        let expected_value = rule_values[0];
+
+        if(data !== expected_value){
+            return [true, ''];
+        }
+
+        return [false, 'The :attribute must not be equal to '+expected_value];
+    }catch(e){
+        console.log(e);
+
+        return [false, 'Unexpected error occurred.'];
+    }
+}
+
 function not_in_array(data, rule_values, request_body){
     // Purpose: This function checks if the input is not in the other field's array
 
@@ -1240,7 +1369,7 @@ function url(data){
 }
 
 module.exports = {
-    accepted, accepted_if, after, after_or_equal, alpha, alpha_dash, alpha_num, alpha_num_dash, array, before, before_or_equal, between, between_date, between_exclusive, between_date_exclusive, boolean, check_if, confirmed, date, date_equals, decimal, declined, declined_if, different, distinct, email, in_array, integer, ip, less_than, less_than_or_equal, mac_address, max, min, not_in_array, not_regex, numeric, regex, required, required_if, timezone, url
+    accepted, accepted_if, after, after_or_equal, alpha, alpha_dash, alpha_num, alpha_num_dash, array, before, before_or_equal, between, between_date, between_exclusive, between_date_exclusive, boolean, check_if, confirmed, date, date_equals, decimal, declined, declined_if, different, distinct, email, equal, greater_than, greater_than_or_equal, in_array, integer, ip, less_than, less_than_or_equal, mac_address, max, min, not_equal, not_in_array, not_regex, numeric, regex, required, required_if, timezone, url
 };
 
 function check_if(other_field_value, operation, expected_value) {

@@ -1,81 +1,69 @@
-# Check Requests
-
-## Table of Contents
-* Installaion (#installation)
-* Usuage (#usuage)
-* Api (#api)
-* Rules (#rules)
-* Initialization (#initialization)
-* Example (#example)
+# Project Documentation
 
 ## Installation
 
-You can install Check Requests via npm:
-
-```bash
-npm install check_requests
+```
+npm i check_requests
 ```
 
-
-## Usage
-To use Check Requests in your Node.js application, require it as follows:
-
-``` Javascript
-const { validateRequest } = require('check_requests');
-```
-
-Then, you can validate requests by calling the validateRequest function with the appropriate parameters. Here's an example:
+## Initialization
 
 ```
-const request = {
-    body: {
-        // Your request body here
+import express from 'express';
+import bodyParser from 'body-parser';
+import { validateRequest } from 'check_requests';
+
+const app = express();
+const port = 3000;
+
+// Middleware to parse urlencoded bodies
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// Middleware to parse json bodies
+app.use(express.json());
+
+app.post('/', (req, res) => {
+    // Define validation rules
+    const rules = {
+        "field_name1":["rule1","rule2:condition"],
+        "field_name2":["rule3:condition1,condition2"]
+    };
+
+    const custom_errors ={  //optional data if not provided default messages will be shown
+        "field_name1":{
+            "rule1":"Rule 1 failed in field_name1",
+            "rule2":"Message to be displayed in case rule2 is not satisfied by field1"
+        }
     }
-};
+    // Validate request body
+    let [isValid, errors, successes]= validateRequest(req, rules, custom_errors);
 
-const rules = {
-    // Your validation rules here
-};
+    // isValid is either true or false
+    // - True if all the rules are satisfied
+    // - False if one or more than one rule is not satisfied
 
-const customErrors = {
-    // Your custom error messages here (optional)
-};
+    // errors
+    // object containing field name and error messages for failed validations
+    // {
+    //    "field_name1" :["Rule 1 failed in field_name1", "Message to be displayed in case rule2 is not satisfied by field1"]
+    // }
 
-const [isValid, errors, successes] = validateRequest(request, rules, customErrors);
+    // successes
+    // array containing field names whose all rules are satisfied
 
-if (isValid) {
-    console.log('Validation successful!');
-    console.log('Successfully validated fields:', successes);
-} else {
-    console.error('Validation failed!');
-    console.error('Validation errors:', errors);
-}
+    if(isValid){
+        res.send('Request Vaidated');
+    }else{
+        res.send('Request not validated');
+    }
+});
 
-```
-
-## API
-
-```
-validateRequest(request, rules, customErrors)
-```
-This function validates a request against a set of rules.
+app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`);
+});
 
 ```
-**request**: The request object to be validated.
 
-**rules**: An object containing validation rules for each field.
-
-**customErrors**: An optional object containing custom error messages.
-```
-Returns an array with the following elements:
-
-```
-**isValid**: A boolean indicating whether the validation was successful.
-
-**errors**: An object containing validation errors, if any.
-
-**successes**: An array of successfully validated fields.
-```
 
 ## Rules
 
@@ -129,62 +117,3 @@ Here are the rules and their parameters that can be accepted
 | required_if | ```field_name```,```{operation/value}```,```{value}```      |   The field must be present if the specified condition is met |
 | timezone | - | The field under validation must be a timezone |
 | url | - | The field under validation must be URL |
-
-
-## Examples
-Here are some examples demonstrating how to use Check Requests in various scenarios.
-
-```
-import express from 'express';
-import bodyParser from 'body-parser';
-import { validateRequest } from 'check_requests';
-
-const app = express();
-const port = 3000;
-
-// Middleware to parse urlencoded bodies
-app.use(bodyParser.urlencoded({ extended: false }));
-
-// Middleware to parse json bodies
-app.use(express.json());
-
-app.post('/', (req, res) => {
-    // Define validation rules
-    const rules = {
-        "first_name": ["alpha"],
-        "last_name": ["alpha"],
-        "user_name": ["required","alpha_num_dash"],
-        "date_of_birth": ["before:2000-01-01"],
-        "date_of_joining": ["after:2020-01-01"],
-        "email": ["required","email"],
-        "consent": ['required', 'accepted_if:email'],
-        "age": ["required","numeric","between:20,60"],
-        "password": ["required","confirmed"],
-        "gender": ["required","boolean"],
-        "hobbies": ["array"]
-    };
-    // Validate request body
-    let [isValid, errors, successes]= validateRequest(req, rules, []);
-    
-    console.log([isValid, errors, successes]);
-
-    if(isValid){
-        res.send('Request Vaidated');
-    }else{
-        res.send('Request not validated');
-    }
-});
-
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
-});
-
-```
-### Thank You
-
-## Author
-
-
-| Name          | Sulabh Nepal         |
-| ------------- |:-------------:       |
-| Email         | me@sulabh.info.np    |

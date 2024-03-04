@@ -1,5 +1,5 @@
 // Importing validation rules
-const { accepted, accepted_if, after, after_or_equal, alpha, alpha_dash, alpha_num, alpha_num_dash, array, before, before_or_equal, between, boolean, confirmed, date, date_equals, decimal, declined, declined_if, different, distinct, email, in_array, integer, ip, less_than, less_than_or_equal, mac_address, max, min, not_in_array, not_regex, numeric, regex, required, required_if, timezone, url } = require('./src/rules.js');
+const { accepted, accepted_if, after, after_or_equal, alpha, alpha_dash, alpha_num, alpha_num_dash, array, before, before_or_equal, between, boolean, confirmed, date, date_equals, decimal, declined, declined_if, different, distinct, email, equal, greater_than, greater_than_or_equal, in_array, integer, ip, less_than, less_than_or_equal, mac_address, max, min, not_equal, not_in_array, not_regex, numeric, regex, required, required_if, timezone, url } = require('./src/rules.js');
 
 // Function to validate request against rules
 function validateRequest(request, rules, custom_errors = []) {
@@ -161,8 +161,17 @@ function validateRequest(request, rules, custom_errors = []) {
                     case 'email':
                         response = email(request.body[field]);
                         break;
+                    case 'equal':
+                        response = equal(request.body[field], rule_values);
+                        break;
                     case 'exclude':
                         response = [true, ''];
+                        break;
+                    case 'greater_than':
+                        response = greater_than(request.body[field], rule_values, request.body);
+                        break;
+                    case 'greater_than_or_equal':
+                        response = greater_than_or_equal(request.body[field], rule_values, request.body);
                         break;
                     case 'in_array':
                         response = in_array(request.body[field], rule_values, request.body);
@@ -188,6 +197,9 @@ function validateRequest(request, rules, custom_errors = []) {
                     case 'min':
                         response = min(request.body[field], rule_values);
                         break;
+                    case 'not_equal':
+                        response = not_equal(request.body[field], rule_values);
+                        break;
                     case 'not_in_array':
                         response = not_in_array(request.body[field], rule_values, request.body);
                         break;
@@ -199,12 +211,6 @@ function validateRequest(request, rules, custom_errors = []) {
                         break;
                     case 'regex':
                         response = regex(request.body[field], rule_values);
-                        break;
-                    case 'required':
-                        response = [true, ''];
-                        break;
-                    case 'required_if':
-                        response = [true, ''];
                         break;
                     case 'timezone':
                         response = timezone(request.body[field]);
